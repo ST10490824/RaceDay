@@ -42,11 +42,3 @@ Role-based authorization must be configured and tested before these roles can be
 The database connectivity endpoint was tested successfully and returned a message confirming that RaceDay API connected to the database. The user lookup endpoint was also tested and returned `User not found` for an ID that did not exist.
 
 Unit tests and the remaining required endpoints should be implemented and verified as part of the project requirements.
-
-## CI/CD
-
-Add a screenshot of the configured GitHub Actions or other CI/CD pipeline here when available.
-
-## Demonstration Video
-
-YouTube demonstration link: Not yet available.
