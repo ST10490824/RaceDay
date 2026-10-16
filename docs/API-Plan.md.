@@ -1,0 +1,97 @@
+
+# Race Day — REST API Endpoint Plan
+
+## 1. Purpose
+
+The Race Day REST API will provide endpoints for managing users, events, event categories, participant entries and race results. The API will be implemented using C# and ASP.NET Core.
+
+Base URL during local development: `/api`
+
+## 2. Users
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /api/users | Register a user |
+| GET | /api/users/{id} | Retrieve a user |
+| PUT | /api/users/{id} | Update a user |
+| DELETE | /api/users/{id} | Delete a user |
+
+## 3. Events
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /api/events | List events |
+| GET | /api/events/{id} | Retrieve event details |
+| POST | /api/events | Create an event |
+| PUT | /api/events/{id} | Update an event |
+| DELETE | /api/events/{id} | Delete an event |
+
+## 4. Event Categories
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /api/events/{eventId}/categories | List categories for an event |
+| GET | /api/categories/{id} | Retrieve a category |
+| POST | /api/events/{eventId}/categories | Create a category |
+| PUT | /api/categories/{id} | Update a category |
+| DELETE | /api/categories/{id} | Delete a category |
+
+## 5. Participant Entries
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /api/entries | Enter a category |
+| GET | /api/entries/{id} | Retrieve an entry |
+| GET | /api/participants/{participantId}/entries | List a participant's entries |
+| PUT | /api/entries/{id} | Update an entry |
+| DELETE | /api/entries/{id} | Cancel an entry |
+
+## 6. Race Results
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /api/results | Record a result |
+| GET | /api/results/{id} | Retrieve a result |
+| GET | /api/events/{eventId}/results | List results for an event |
+| GET | /api/participants/{participantId}/results | View a participant's performance history |
+| PUT | /api/results/{id} | Update a result |
+| DELETE | /api/results/{id} | Delete a result |
+
+## 7. Weather and Route Information
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /api/events/{eventId}/weather | Retrieve weather information for an event |
+| GET | /api/events/{eventId}/route | Retrieve event route information |
+
+Weather information will be retrieved from an external weather service where supported. Route information will be returned for the selected event.
+
+## 8. HTTP Status Codes
+
+- 200 OK: Request completed successfully.
+- 201 Created: A resource was created.
+- 204 No Content: Request completed without a response body.
+- 400 Bad Request: Request data is invalid.
+- 401 Unauthorized: Authentication is required or invalid.
+- 403 Forbidden: The user lacks permission.
+- 404 Not Found: The requested resource does not exist.
+- 409 Conflict: The request conflicts with existing data.
+- 500 Internal Server Error: An unexpected server error occurred.
+
+## 9. Validation and Business Rules
+
+- Required fields must be supplied.
+- Email addresses must be unique.
+- Only authorised organisers may manage their events.
+- Categories must belong to existing events.
+- Duplicate participant entries in the same category must be prevented.
+- Results must reference valid entries.
+- Invalid identifiers must return an appropriate error response.
+
+## 10. Security
+
+The API should protect passwords using secure password hashing. Authentication and role-based authorisation will be implemented according to the detailed assignment requirements.
+
+## 11. API Testing
+
+The API will be tested for successful requests, invalid inputs, missing resources, business rule violations and database-related behaviour. Automated tests will be run through GitHub Actions.
