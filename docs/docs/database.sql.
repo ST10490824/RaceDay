@@ -1,0 +1,111 @@
+
+-- Race Day: Database Creation Script
+-- Database: Microsoft SQL Server
+
+IF DB_ID('RaceDayDb') IS NULL
+BEGIN
+    CREATE DATABASE RaceDayDb;
+END;
+GO
+
+USE RaceDayDb;
+GO
+
+CREATE TABLE Users (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    FullName NVARCHAR(120) NOT NULL,
+    Email NVARCHAR(255) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(255) NOT NULL,
+    Role NVARCHAR(20) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_Users_Role
+        CHECK (Role IN ('Participant', 'Organiser', 'Admin'))
+);
+GO
+
+CREATE TABLE Events (
+    EventID INT IDENTITY(1,1) PRIMARY KEY,
+    OrganizerID INT NOT NULL,
+    Name NVARCHAR(150) NOT NULL,
+    Description NVARCHAR(1000) NULL,
+    EventType NVARCHAR(20) NOT NULL,
+    EventDate DATETIME2 NOT NULL,
+    Location NVARCHAR(200) NOT NULL,
+    RouteInformation NVARCHAR(1000) NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Published',
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_Events_Users
+        FOREIGN KEY (OrganizerID) REFERENCES Users(UserID),
+
+    CONSTRAINT CK_Events_EventType
+        CHECK (EventType IN ('Running', 'Walking', 'Cycling')),
+
+    CONSTRAINT CK_Events_Status
+        CHECK (Status IN ('Draft', 'Published', 'Cancelled', 'Completed'))
+);
+GO
+
+CREATE TABLE Categories (
+    CategoryID INT IDENTITY(1,1) PRIMARY KEY,
+    EventID INT NOT NULL,
+    Name NVARCHAR(100) NOT NULL,
+    DistanceKm DECIMAL(7,2) NOT NULL,
+    EntryFee DECIMAL(10,2) NOT NULL DEFAULT 0,
+    Capacity INT NULL,
+
+    CONSTRAINT FK_Categories_Events
+        FOREIGN KEY (EventID) REFERENCES Events(EventID),
+
+    CONSTRAINT CK_Categories_Distance
+        CHECK (DistanceKm > 0),
+
+    CONSTRAINT CK_Categories_EntryFee
+        CHECK (EntryFee >= 0),
+
+    CONSTRAINT CK_Categories_Capacity
+        CHECK (Capacity IS NULL OR Capacity > 0),
+
+    CONSTRAINT UQ_Categories_Event_Name
+        UNIQUE (EventID, Name)
+);
+GO
+
+CREATE TABLE Entries (
+    EntryID INT IDENTITY(1,1) PRIMARY KEY,
+    ParticipantID INT NOT NULL,
+    CategoryID INT NOT NULL,
+    EntryDate DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Registered',
+
+    CONSTRAINT FK_Entries_Users
+        FOREIGN KEY (ParticipantID) REFERENCES Users(UserID),
+
+    CONSTRAINT FK_Entries_Categories
+        FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID),
+
+    CONSTRAINT UQ_Entries_Participant_Category
+        UNIQUE (ParticipantID, CategoryID),
+
+    CONSTRAINT CK_Entries_Status
+        CHECK (Status IN ('Registered', 'Cancelled', 'Completed'))
+);
+GO
+
+CREATE TABLE Results (
+    ResultID INT IDENTITY(1,1) PRIMARY KEY,
+    EntryID INT NOT NULL UNIQUE,
+    FinishTime TIME(3) NULL,
+    FinishPosition INT NULL,
+    ResultStatus NVARCHAR(20) NOT NULL DEFAULT 'Pending',
+
+    CONSTRAINT FK_Results_Entries
+        FOREIGN KEY (EntryID) REFERENCES Entries(EntryID),
+
+    CONSTRAINT CK_Results_Position
+        CHECK (FinishPosition IS NULL OR FinishPosition > 0),
+
+    CONSTRAINT CK_Results_Status
+        CHECK (ResultStatus IN ('Pending', 'Finished', 'DNF', 'DNS', 'Disqualified'))
+);
+GO
